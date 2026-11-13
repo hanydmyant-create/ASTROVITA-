@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ASTROVITA · Live Astronaut Health</title>
+<style>
+:root{--a:#38bdf8;--a2:#4f8cff;--bg:#050816;--p:rgba(10,16,38,.78);--t:#e8eefc;--m:#8fa0c8;--g:#34d399;--y:#fbbf24;--r:#f43f5e}
+body[data-sex=female]{--a:#ff5fa8;--a2:#b388ff}
+*{box-sizing:border-box}html,body{margin:0;height:100%;background:var(--bg);color:var(--t);font:14px/1.45 system-ui,"Segoe UI",sans-serif;overflow:hidden}
+#bg{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;opacity:.3;z-index:0}
+.scr{position:fixed;inset:0;z-index:5;display:none}.scr.on{display:flex}
+#intro{align-items:center;justify-content:center;flex-direction:column;background:var(--bg);z-index:9;cursor:pointer}
+#stars{position:absolute;inset:0}
+#intro .lg{position:relative;text-align:center;animation:zin 2.4s ease-out both}
+#intro img{width:min(460px,80vw);border-radius:14px;filter:drop-shadow(0 0 30px var(--a))}
+#intro p{letter-spacing:.4em;color:var(--m);margin:14px 0 0;font-size:12px}
+@keyframes zin{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:none}}
+#auth{align-items:center;justify-content:center}
+.card{background:var(--p);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:28px;width:min(440px,92vw);backdrop-filter:blur(14px);box-shadow:0 0 60px color-mix(in srgb,var(--a) 25%,transparent);animation:zin .8s both}
+.card h2{margin:0 0 4px;font-size:22px}.card small{color:var(--m)}
+input{width:100%;margin:10px 0 0;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:var(--t);font-size:15px}
+.sxs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+.sx{border:2px solid rgba(255,255,255,.15);background:rgba(255,255,255,.04);border-radius:12px;padding:8px;color:var(--t);cursor:pointer;font-weight:600}
+.sx img{width:100%;height:96px;object-fit:cover;border-radius:8px;display:block;margin-bottom:6px;opacity:.8}
+.sx.on{border-color:var(--a);box-shadow:0 0 18px var(--a)}
+.btn{background:linear-gradient(90deg,var(--a),var(--a2));border:0;color:#04101f;font-weight:700;font-size:15px;padding:12px 20px;border-radius:10px;cursor:pointer;width:100%}
+.btn.s{width:auto;padding:7px 12px;font-size:12px}.btn.o{background:transparent;border:1px solid var(--a);color:var(--a)}
+#err{color:var(--r);min-height:20px;margin-top:8px}
+#rk{background:radial-gradient(circle at 50% 100%,#1a2a5e,var(--bg) 70%);z-index:8;overflow:hidden}
+.launch{position:absolute;left:50%;bottom:6%;animation:lift 3.2s cubic-bezier(.55,0,.9,.35) forwards}
+.launch:after{content:"";position:absolute;left:50%;top:92%;width:180px;height:340px;transform:translateX(-50%);background:radial-gradient(ellipse at top,rgba(255,255,255,.55),transparent 70%);filter:blur(10px);animation:smoke .5s infinite alternate}
+.fl{animation:fl .12s infinite alternate;transform-origin:30px 92px}
+@keyframes fl{to{transform:scaleY(1.45)}}@keyframes smoke{to{opacity:.5;height:420px}}
+@keyframes lift{0%{transform:translate(-50%,0)}18%{transform:translate(calc(-50% + 3px),0)}24%{transform:translate(calc(-50% - 3px),0)}30%{transform:translate(-50%,-4px)}100%{transform:translate(-50%,-135vh)}}
+.pad{position:absolute;top:18%;width:100%;text-align:center;letter-spacing:.5em;font-weight:700;color:var(--a);animation:zin 1s both}
+#main{display:none;grid-template-columns:230px 1fr 390px;grid-template-rows:56px 1fr;z-index:5}
+#main.on{display:grid}
+header{grid-column:1/4;display:flex;align-items:center;gap:14px;padding:0 16px;background:var(--p);border-bottom:1px solid rgba(255,255,255,.1)}
+header img{height:34px}header .sp{flex:1}
+.chip{padding:4px 10px;border-radius:99px;border:1px solid var(--a);color:var(--a);font-size:12px;white-space:nowrap}
+.side,.panel{background:var(--p);overflow:auto;padding:12px;backdrop-filter:blur(10px)}
+.side{border-right:1px solid rgba(255,255,255,.08)}.panel{border-left:1px solid rgba(255,255,255,.08)}
+.row{display:flex;align-items:center;gap:10px;padding:9px;border-radius:10px;cursor:pointer;border:1px solid transparent}
+.row:hover,.row.on{background:rgba(255,255,255,.07);border-color:var(--a)}
+.row small{display:block;color:var(--m)}.dt{width:12px;height:12px;border-radius:50%;flex:none}
+.GREEN{--c:var(--g)}.YELLOW{--c:var(--y)}.RED{--c:var(--r)}.dt{background:var(--c,var(--g));box-shadow:0 0 10px var(--c,var(--g))}
+#stage{position:relative;overflow:hidden}#stage canvas{display:block;width:100%;height:100%}
+#ld{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);color:var(--m);text-align:center;pointer-events:none}
+#hint{position:absolute;left:14px;bottom:12px;color:var(--m);font-size:12px;pointer-events:none}
+#warn{position:absolute;top:10px;left:10px;right:10px;display:flex;flex-direction:column;gap:6px;pointer-events:none}
+.w{background:rgba(10,16,38,.9);border-left:4px solid var(--c);padding:8px 12px;border-radius:8px;font-size:13px}
+body.alarm #stage{box-shadow:inset 0 0 0 3px var(--r),inset 0 0 60px rgba(244,63,94,.35);animation:al 1s infinite alternate}
+@keyframes al{to{box-shadow:inset 0 0 0 3px transparent}}
+#B{position:absolute;width:280px;display:none;background:rgba(8,13,32,.94);border:1px solid var(--c,var(--a));border-radius:14px;padding:12px 14px;box-shadow:0 0 28px color-mix(in srgb,var(--c,var(--a)) 40%,transparent)}
+#B:before{content:"";position:absolute;left:-8px;top:78px;border:8px solid transparent;border-right-color:var(--c,var(--a));border-left:0}
+#B h3{margin:0;font-size:16px;display:flex;justify-content:space-between;gap:8px}
+.pill{font-size:11px;padding:2px 8px;border-radius:99px;background:var(--c);color:#04101f;font-weight:700}
+.big{font-size:28px;font-weight:700;color:var(--c)}.m{color:var(--m)}
+.panel h3{margin:0 0 4px}.panel .box{background:rgba(255,255,255,.05);border-radius:10px;padding:10px;margin:10px 0;font-size:13px}
+.cv{height:210px;position:relative}
+#m3{position:fixed;inset:0;z-index:20;background:rgba(3,6,18,.92);display:none;flex-direction:column}#m3.on{display:flex}
+#m3 .hd{display:flex;justify-content:space-between;align-items:center;padding:12px 18px}
+#m3b{flex:1;position:relative}#m3b canvas,#m3b img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+@media(max-width:1000px){#main{grid-template-columns:1fr;grid-template-rows:56px 52vh auto}.side{display:none}header{grid-column:1}.panel{grid-row:3}}
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+#stage{background:linear-gradient(rgba(4,8,24,.78),rgba(4,8,24,.94)),url(public/assets/astrovita/space/earth-horizon.jpg) center/cover}
+#stage:before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(120,180,255,.045) 0 1px,transparent 1px 3px)}
+#stage:after{content:"";position:absolute;inset:8px;z-index:1;pointer-events:none;background:linear-gradient(var(--a),var(--a)) top left/46px 2px,linear-gradient(var(--a),var(--a)) top left/2px 46px,linear-gradient(var(--a),var(--a)) top right/46px 2px,linear-gradient(var(--a),var(--a)) top right/2px 46px,linear-gradient(var(--a),var(--a)) bottom left/46px 2px,linear-gradient(var(--a),var(--a)) bottom left/2px 46px,linear-gradient(var(--a),var(--a)) bottom right/46px 2px,linear-gradient(var(--a),var(--a)) bottom right/2px 46px;background-repeat:no-repeat;filter:drop-shadow(0 0 6px var(--a))}
+#warn,#B,#hint,#ld{z-index:3}
+#B{width:470px;padding:0;border-radius:6px;background:rgba(6,12,34,.94);border:1px solid var(--c,var(--a));box-shadow:0 0 30px color-mix(in srgb,var(--c,var(--a)) 45%,transparent),inset 0 0 30px rgba(56,189,248,.08)}
+#B:before{display:none}
+#B .hd{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:linear-gradient(90deg,color-mix(in srgb,var(--c,var(--a)) 35%,transparent),transparent);border-bottom:1px solid var(--c,var(--a));letter-spacing:.08em;text-transform:uppercase;font-size:12px}
+#B .bd{display:grid;grid-template-columns:150px 1fr;gap:12px;padding:10px 12px}
+#mini{height:150px;border:1px solid rgba(255,255,255,.15);border-radius:6px;position:relative;overflow:hidden;background:radial-gradient(circle,color-mix(in srgb,var(--c,var(--a)) 22%,transparent),transparent 70%)}
+#mini canvas,#mini img{position:absolute;inset:0;width:100%!important;height:100%!important;object-fit:contain}
+.cmp{width:100%;border-collapse:collapse;font-size:12px;margin-top:4px}.cmp td{padding:4px 0;border-bottom:1px solid rgba(255,255,255,.1)}.cmp td:last-child{text-align:right;font-weight:600}
+#B .big{font-size:26px;line-height:1.1}#B .cv{height:140px;padding:0 12px}#B .ft{padding:8px 12px 10px;font-size:12px}
+.x{background:none;border:0;color:var(--t);font-size:20px;line-height:1;cursor:pointer;padding:0 0 0 6px}
+.av{width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid var(--a);box-shadow:0 0 10px var(--a)}
+.crew{position:relative;margin-bottom:10px;border:1px solid var(--a);border-radius:8px;overflow:hidden}.crew img{width:100%;height:78px;object-fit:cover;display:block;opacity:.75}.crew div{padding:6px 9px;font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+.bar{display:block;height:5px;background:rgba(255,255,255,.12);border-radius:3px;margin-top:5px;width:150px}.bar b{display:block;height:100%;background:var(--c);border-radius:3px;box-shadow:0 0 8px var(--c)}
+.row{border:1px solid rgba(255,255,255,.1);margin-bottom:6px}
+</style>
+</head><body data-sex="male">
+<video id="bg" autoplay muted loop playsinline src="public/assets/astrovita/bg.mp4"></video>
+
+<section id="intro" class="scr on"><canvas id="stars"></canvas><div class="lg"><img src="public/assets/astrovita/branding/logo-full.jpg" alt="ASTROVITA"><p>SPACE MEDICINE · LIVE BIOTELEMETRY</p></div></section>
+
+<section id="auth" class="scr"><div class="card">
+<h2>Astronaut access</h2><small>Log in, or enter new details to register.</small>
+<input id="u" placeholder="Username (demo: artemis / orion)" autocomplete="username"><input id="p" type="password" placeholder="Password (demo: 123)" autocomplete="current-password">
+<div class="sxs"><button class="sx" data-s="female"><img src="public/assets/astrovita/organs/female-anatomy-overview.jpg" alt="">Female</button><button class="sx" data-s="male"><img src="public/assets/astrovita/organs/male-anatomy-overview.jpg" alt="">Male</button></div>
+<button class="btn" id="done">Done</button><div id="err"></div></div></section>
+
+<section id="rk" class="scr"><div class="pad">LIFTOFF</div><div class="launch"><svg viewBox="0 0 60 140" width="90"><path d="M30 2c10 14 14 34 14 56v34H16V58C16 36 20 16 30 2z" fill="#e8eefc"/><circle cx="30" cy="48" r="8" fill="#38bdf8" stroke="#1d3557" stroke-width="3"/><path d="M16 78L2 108l14-6zM44 78l14 30-14-6z" fill="#ff5fa8"/><path class="fl" d="M20 92h20L30 138z" fill="#ffb020"/></svg></div></section>
+
+<div id="main" class="scr">
+<header><img src="public/assets/astrovita/branding/logo-wordmark.png" alt="ASTROVITA"><span class="chip" id="cSex"></span><span class="chip" id="cEnv"></span><span class="chip" id="cDay"></span><span class="sp"></span><span class="chip" id="cXp"></span><img class="av" src="public/assets/astrovita/space/astronaut-spacewalk.jpg" alt=""><span id="cUser" class="m"></span><button class="btn s o" id="out">Log out</button></header>
+<aside class="side" id="list"></aside>
+<div id="stage"><div id="ld">Loading 3D body…</div><div id="warn"></div><div id="B"><div class="hd"><b id="bt"></b><span><span class="pill" id="bs"></span> <button class="x" id="bx" aria-label="Close">×</button></span></div>
+<div class="bd"><div id="mini"></div><div><div class="big" id="bv"></div><table class="cmp"><tr><td>Earth normal</td><td id="ce"></td></tr><tr><td id="cl">Space ideal</td><td id="cs"></td></tr><tr><td>Δ vs Earth midpoint</td><td id="cd"></td></tr></table><div class="m" id="bm" style="font-size:12px;margin-top:6px"></div></div></div>
+<div class="cv"><canvas id="ch"></canvas></div><div class="ft" id="bf"></div></div><div id="hint">Drag to rotate · scroll to zoom · click a glowing point: liver, brain, heart, pancreas, bones, kidneys</div></div>
+<aside class="panel" id="panel"><h3>Select an organ</h3><p class="m">Click a glowing dot on the body (or an organ in the list) to see live data, ideal values and guidance.</p></aside>
+</div>
+
+<div id="m3"><div class="hd"><b id="m3t"></b><button class="btn s" id="m3x">Close</button></div><div id="m3b"></div></div>
+
+<script type="module">
+import * as THREE from 'three';
+import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+const $=s=>document.querySelector(s),API=location.protocol==='file:'?'http://127.0.0.1:8000':'',MP='public/models/',IM='public/assets/astrovita/organs/';
+const ST={GREEN:0x34d399,YELLOW:0xfbbf24,RED:0xf43f5e},CSS={GREEN:'#34d399',YELLOW:'#fbbf24',RED:'#f43f5e'};
+/* organ id (backend key) -> node names in the body GLB, detail GLB, picture */
+const ORG={
+ heart:{n:'Heart',grp:['VH_M_heart'],dots:['VH_M_heart'],glb:'heart.glb',img:'heart.jpg'},
+ bones:{n:'Bones & Skeleton',grp:['VH_M_skeletal_system'],dots:['VH_M_pelvis'],glb:'human_femur-nih3d.glb',img:'skeleton.jpg'},
+ pancreas:{n:'Pancreas',grp:['VH_M_pancreas'],dots:['VH_M_pancreas'],glb:'3d-vh-m-pancreas-nih3d.glb',img:'stomach.jpg'},
+ kidneys:{n:'Kidneys',grp:['VH_M_left_kidney','VH_M_right_kidney'],dots:['VH_M_left_kidney','VH_M_right_kidney'],glb:'thehuman_kidney.glb',img:'kidneys.jpg'},
+ liver:{n:'Liver',grp:['VH_M_liver'],dots:['VH_M_liver'],glb:'VH_M_Liver.glb',img:'liver.jpg'},
+ brain:{n:'Brain',grp:['Allen_brain'],dots:['Allen_brain'],glb:'3d-vh-m-allen-brain.glb',img:'brain.jpg'}};
+const METRIC={heart:'Heart rate',pancreas:'Blood glucose',bones:'Serum calcium',kidneys:'Serum creatinine',liver:'AST enzyme',brain:'Sleep'};
+/* general adult clinical reference ranges on Earth: f=female, m=male (educational reference) */
+const EARTH={heart:{f:[60,100],m:[60,100]},pancreas:{f:[70,99],m:[70,99]},bones:{f:[8.6,10.3],m:[8.6,10.3]},kidneys:{f:[0.5,1.1],m:[0.7,1.3]},liver:{f:[10,35],m:[10,40]},brain:{f:[7,9],m:[7,9]}};
+const rng=t=>{const m=/(-?\d+\.?\d*)\s*-\s*(-?\d+\.?\d*)/.exec(t||'');return m?[+m[1],+m[2]]:null};
+const pct=o=>{const r=rng(o.ideal_range);if(!r||o.current_value==null)return 50;const sp=r[1]-r[0];return Math.max(2,Math.min(100,(o.current_value-(r[0]-sp*.5))/(sp*2)*100))};
+const crew=()=>`<div class="crew"><img src="public/assets/astrovita/space/international-space-station.jpg" alt=""><div><b>${me.u}</b> · ${me.sex==='female'?'Female':'Male'}<br><span class="m">${dash.environment}</span></div></div>`;
+let mr,ms,mc,mcam,cur=null;const cache=new Map();
+function mini(k){const h=$('#mini'),o=ORG[k];
+ if(!mr){mr=new THREE.WebGLRenderer({antialias:true,alpha:true});mr.setPixelRatio(Math.min(devicePixelRatio,2));h.appendChild(mr.domElement);ms=new THREE.Scene();mcam=new THREE.PerspectiveCamera(40,1,.1,100);mcam.position.set(0,0,5);
+  ms.add(new THREE.AmbientLight(0xffffff,1.3));const l=new THREE.DirectionalLight(0xffffff,2);l.position.set(3,4,5);ms.add(l);mc=new OrbitControls(mcam,mr.domElement);mc.autoRotate=true;mc.autoRotateSpeed=3;mc.enablePan=false;mc.enableZoom=false}
+ mr.setSize(h.clientWidth,h.clientHeight);mcam.aspect=h.clientWidth/h.clientHeight;mcam.updateProjectionMatrix();
+ if(cur){ms.remove(cur);cur=null}h.querySelectorAll('img').forEach(i=>i.remove());mr.domElement.style.display='block';
+ const put=m=>{if(sel===k){cur=m;ms.add(m)}},fb=()=>{if(sel!==k)return;mr.domElement.style.display='none';h.insertAdjacentHTML('beforeend','<img src="'+IM+o.img+'" alt="">')};
+ if(cache.has(k))return put(cache.get(k));
+ new GLTFLoader().load(MP+o.glb,g=>{const m=g.scene;let b=new THREE.Box3().setFromObject(m);const s=b.getSize(new THREE.Vector3());m.scale.setScalar(3.2/Math.max(s.x,s.y,s.z));b=new THREE.Box3().setFromObject(m);m.position.sub(b.getCenter(new THREE.Vector3()));const w=new THREE.Group();w.add(m);cache.set(k,w);put(w)},undefined,fb)}
+$('#bx').onclick=()=>{sel=null;$('#B').style.display='none';$('#panel').innerHTML='<h3>Select an organ</h3><p class="m">Click a glowing dot on the body.</p>';paintList()};
+let me,sel=null,dash=null,chart=null,scene,cam,ren,ctl,dots=[],meshes=[],anchor=null,started=false,prevRed=new Set(),ac;
+const show=id=>document.querySelectorAll('.scr').forEach(s=>s.classList.toggle('on',s.id===id));
+const post=(u,b)=>fetch(API+u,{method:'POST',headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):undefined});
+const get=async u=>{const r=await fetch(API+u);if(!r.ok)throw new Error(r.status);return r.json()};
+
+/* ---------- intro: star-warp animation ---------- */
+let introDone=false;const toAuth=()=>{if(!introDone){introDone=true;show('auth')}};
+(function(){const c=$('#stars'),x=c.getContext('2d');c.width=innerWidth;c.height=innerHeight;
+ const S=Array.from({length:420},()=>({x:Math.random()*2-1,y:Math.random()*2-1,z:Math.random()}));const t0=performance.now();
+ (function f(n){if(introDone)return;const e=n-t0;x.fillStyle='rgba(5,8,22,.3)';x.fillRect(0,0,c.width,c.height);
+  for(const s of S){s.z-=.006+e/6e5;if(s.z<=.01)s.z=1;const k=1/s.z,px=c.width/2+s.x*k*c.width/3,py=c.height/2+s.y*k*c.height/3,w=Math.min(3.5,k*.7);x.fillStyle='#cfe3ff';x.fillRect(px,py,w,w)}
+  e<3800?requestAnimationFrame(f):toAuth()})(t0)})();
+$('#intro').onclick=toAuth;
+
+/* ---------- sex toggle + Done -> rocket ---------- */
+let sex='female';const pickSex=s=>{sex=s;document.body.dataset.sex=s;document.querySelectorAll('.sx').forEach(b=>b.classList.toggle('on',b.dataset.s===s))};
+document.querySelectorAll('.sx').forEach(b=>b.onclick=()=>pickSex(b.dataset.s));pickSex('female');
+const err=t=>$('#err').textContent=t;
+$('#done').onclick=async()=>{const u=$('#u').value.trim(),p=$('#p').value;if(!u||!p)return err('Enter a username and password.');err('');
+ try{let r=await post('/api/login',{username:u,password:p,sex}),d;
+  if(r.status===401){r=await post('/api/register',{username:u,password:p,sex});if(r.status===400)return err('That astronaut already exists - wrong password.');if(!r.ok)return err('Registration failed.')}
+  d=await r.json();me={u:d.username,sex:d.sex};pickSex(me.sex);
+  show('rk');loadScene();setTimeout(enter,3300)}
+ catch(e){err('Cannot reach the backend. Start it with: uvicorn backend:app --reload')}};
+
+/* ---------- main screen ---------- */
+function enter(){show('main');$('#cSex').textContent=(me.sex==='female'?'Female':'Male')+' calibration';$('#cUser').textContent=me.u;
+ resize();pollDash();setInterval(pollDash,3000);setInterval(live,2000);$('#out').onclick=()=>location.reload()}
+function paintList(){if(!dash)return;$('#list').innerHTML=crew()+Object.keys(ORG).map(k=>{const o=dash.organs[k]||{};return `<div class="row ${o.status||''} ${k===sel?'on':''}" data-k="${k}"><span class="dt"></span><div><b>${ORG[k].n}</b><small>${o.current_value??'-'} ${o.unit??''}</small><i class="bar"><b style="width:${pct(o)}%"></b></i></div></div>`}).join('');
+ document.querySelectorAll('.row').forEach(r=>r.onclick=()=>{const d=dots.find(x=>x.userData.organ===r.dataset.k);select(r.dataset.k,d?d.position:new THREE.Vector3())})}
+async function pollDash(){try{dash=await get('/api/dashboard/'+me.u);
+ $('#cEnv').textContent=dash.environment;$('#cDay').textContent='Mission day '+dash.simulated_day;$('#cXp').textContent='XP '+dash.gamification.readiness_xp+' · '+dash.gamification.routine_progress;
+ paintList();for(const d of dots){const s=dash.organs[d.userData.organ]?.status||'GREEN';d.material.color.setHex(ST[s])}
+ for(const [k,o] of Object.entries(ORG)){const s=dash.organs[k]?.status||'GREEN';for(const m of o.meshes||[])for(const mt of [].concat(m.material))if(mt.emissive){mt.emissive.setHex(ST[s]);mt.emissiveIntensity=s==='GREEN'?.12:.6}}
+ const bad=Object.entries(dash.organs).filter(([k,v])=>ORG[k]&&v.status!=='GREEN');
+ $('#warn').innerHTML=bad.map(([k,v])=>`<div class="w ${v.status}"><b>${v.status==='RED'?'⚠ CRITICAL':'Caution'} · ${ORG[k].n}:</b> ${v.alert_message}</div>`).join('');
+ const reds=new Set(bad.filter(([,v])=>v.status==='RED').map(([k])=>k));document.body.classList.toggle('alarm',reds.size>0);
+ if([...reds].some(k=>!prevRed.has(k)))beep();prevRed=reds}catch(e){}}
+function beep(){try{ac=ac||new AudioContext();const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=880;g.gain.value=.05;o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+.25)}catch{}}
+
+/* ---------- selection, balloon, graphs ---------- */
+function select(k,pos){sel=k;anchor=pos.clone();paintList();mini(k);live()}
+async function live(){if(!sel||!me)return;try{render(await get(`/api/live/${me.u}/${sel}`))}catch(e){}}
+function render(d){const s=d.status,c=CSS[s]||CSS.GREEN,B=$('#B'),g=d.spaceflight_guide||{},mc2=d.mission_context||{},k=mc2.live_mission_clock||{},E=EARTH[sel],er=E[d.sex==='female'?'f':'m'],em=(er[0]+er[1])/2,sr=rng(d.ideal_range),dv=(d.current_value-em)/em*100;
+ B.style.display='block';B.style.setProperty('--c',c);
+ $('#bt').textContent=ORG[sel].n+' · '+METRIC[sel];$('#bs').textContent=s;$('#bs').style.background=c;
+ $('#bv').innerHTML=`${d.current_value} <small>${d.unit}</small>`;$('#bv').style.color=c;
+ $('#ce').textContent=er[0]+' – '+er[1];$('#cl').textContent='Space ideal · day '+mc2.simulated_day;$('#cs').textContent=d.ideal_range;
+ $('#cd').textContent=(dv>=0?'+':'')+dv.toFixed(1)+' %';$('#bm').textContent=d.alert_message;
+ $('#bf').innerHTML='<b>Advice:</b> '+d.advice;
+ const h=d.graph_history||[],f=v=>h.map(()=>v);
+ if(!chart)chart=new Chart($('#ch'),{type:'line',data:{labels:[],datasets:[{label:'Live',data:[],borderColor:c,fill:true,tension:.35,pointRadius:2},
+  {label:'Space ideal min',data:[],borderColor:'#34d399',borderDash:[6,4],pointRadius:0,borderWidth:1},{label:'Space ideal max',data:[],borderColor:'#34d399',borderDash:[6,4],pointRadius:0,borderWidth:1},
+  {label:'Earth min',data:[],borderColor:'#8fa0c8',borderDash:[2,3],pointRadius:0,borderWidth:1},{label:'Earth max',data:[],borderColor:'#8fa0c8',borderDash:[2,3],pointRadius:0,borderWidth:1}]},
+  options:{animation:false,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#8fa0c8',maxTicksLimit:5}},y:{ticks:{color:'#8fa0c8'}}}}});
+ const D=chart.data.datasets;chart.data.labels=h.map(x=>x.time);D[0].data=h.map(x=>x.value);D[0].borderColor=c;D[0].backgroundColor=c+'33';
+ D[1].data=f(sr?sr[0]:null);D[2].data=f(sr?sr[1]:null);D[3].data=f(er[0]);D[4].data=f(er[1]);chart.update('none');
+ $('#panel').innerHTML=`<h3>${ORG[sel].n} <span class="pill" style="background:${c}">${s}</span></h3><div class="m">${d.input_source||''} · ${d.sex} reference calibration</div>
+ <div class="box" style="border-left:3px solid ${c}"><b>${s==='GREEN'?'Status':'Warning'}:</b> ${d.alert_message}<br><b>Advice:</b> ${d.advice}</div>
+ <div class="box"><b>Dataset:</b> ${d.dataset_calibration||'-'}<br><b>Hazard:</b> ${g.nasa_hazard||'-'}<br><b>Why measure:</b> ${g.why_needed||'-'}<br><b>How to measure:</b> ${g.how_to_measure||'-'}<br><b>Escalate to flight surgeon:</b> ${g.flight_surgeon_escalation||'-'}<br><span class="m">Comms: ${mc2.comms_delay||''} · T+ ${k.days||0}d ${k.hours||0}h ${k.minutes||0}m ${k.seconds||0}s</span></div>
+ <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn s" id="v3">Expand 3D</button><button class="btn s o" id="em">Demo: toggle emergency</button><button class="btn s o" id="rs">Reset</button></div>`;
+ $('#v3').onclick=open3d;$('#em').onclick=async()=>{await post(`/api/demo/trigger-emergency/${me.u}/${sel}`);pollDash();live()};$('#rs').onclick=async()=>{await post('/api/demo/reset/'+me.u);pollDash();live()}}
+
+/* ---------- 3D body ---------- */
+async function loadScene(){if(started)return;started=true;const box=$('#stage');
+ ren=new THREE.WebGLRenderer({antialias:true,alpha:true});ren.setPixelRatio(Math.min(devicePixelRatio,2));box.prepend(ren.domElement);
+ scene=new THREE.Scene();cam=new THREE.PerspectiveCamera(38,1,.1,100);cam.position.set(0,0,8.5);
+ scene.add(new THREE.AmbientLight(0xffffff,1.2));const dl=new THREE.DirectionalLight(0xffffff,1.8);dl.position.set(3,5,6);scene.add(dl);
+ ctl=new OrbitControls(cam,ren.domElement);ctl.enableDamping=true;ctl.minDistance=2.5;ctl.maxDistance=14;
+ addEventListener('resize',resize);
+ let path=MP+'3d-vh-m-united-nih3d.glb';
+ if(me.sex==='female'&&await fetch(MP+'female-body.glb',{method:'HEAD'}).then(r=>r.ok).catch(()=>false))path=MP+'female-body.glb';
+ else if(me.sex==='female')$('#hint').textContent='Female 3D model not found (public/models/female-body.glb): showing the Visible Human body with FEMALE data calibration.';
+ new GLTFLoader().load(path,g=>{setupBody(g.scene);$('#ld').remove()},e=>{if(e.total)$('#ld').textContent='Loading 3D body '+Math.round(e.loaded/e.total*100)+'%'},e=>$('#ld').textContent='Could not load the 3D model: '+(e.message||e));
+ const dom=ren.domElement,ray=new THREE.Raycaster(),mv=new THREE.Vector2();let dn=null;
+ dom.onpointerdown=e=>dn=[e.clientX,e.clientY];
+ dom.onpointerup=e=>{if(!dn||Math.hypot(e.clientX-dn[0],e.clientY-dn[1])>5)return;const r=dom.getBoundingClientRect();mv.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);ray.setFromCamera(mv,cam);
+  const h=ray.intersectObjects(dots)[0]||ray.intersectObjects(meshes)[0];if(h)select(h.object.userData.organ,h.object.userData.dot?h.object.position:h.point)};
+ (function loop(t){requestAnimationFrame(loop);ctl.update();for(const d of dots)d.scale.setScalar(d.userData.organ===sel?1.6:1+.2*Math.sin(t/260));
+  const B=$('#B');if(anchor&&sel&&B.style.display==='block'){const v=anchor.clone().project(cam),w=box.clientWidth,h=box.clientHeight,bw=B.offsetWidth,bh=B.offsetHeight,x=(v.x*.5+.5)*w,y=(-v.y*.5+.5)*h;let L=x+26;if(L+bw>w-8)L=x-26-bw;B.style.left=Math.max(8,L)+'px';B.style.top=Math.min(Math.max(y-bh/2,60),Math.max(60,h-bh-8))+'px'}
+  if(mr&&sel&&B.style.display==='block'){mc.update();mr.render(ms,mcam)}
+  ren.render(scene,cam)})(0)}
+function resize(){if(!ren)return;const b=$('#stage');ren.setSize(b.clientWidth,b.clientHeight);cam.aspect=b.clientWidth/b.clientHeight;cam.updateProjectionMatrix()}
+const mats=m=>[].concat(m.material);
+function setupBody(root){const wrap=new THREE.Group();wrap.add(root);scene.add(wrap);wrap.updateMatrixWorld(true);
+ let b=new THREE.Box3().setFromObject(wrap),s=b.getSize(new THREE.Vector3());
+ if(s.x>s.y&&s.x>s.z)wrap.rotation.z=Math.PI/2;else if(s.z>s.y&&s.z>s.x)wrap.rotation.x=-Math.PI/2;
+ wrap.updateMatrixWorld(true);b=new THREE.Box3().setFromObject(wrap);s=b.getSize(new THREE.Vector3());wrap.scale.setScalar(5/s.y);
+ wrap.updateMatrixWorld(true);b=new THREE.Box3().setFromObject(wrap);wrap.position.sub(b.getCenter(new THREE.Vector3()));wrap.updateMatrixWorld(true);
+ for(const [id,o] of Object.entries(ORG)){o.meshes=[];for(const n of o.grp){const nd=root.getObjectByName(n);nd&&nd.traverse(m=>{if(m.isMesh){m.userData.organ=id;o.meshes.push(m);meshes.push(m)}})}}
+ const ghost=new THREE.Color(me.sex==='female'?0xff9ccd:0x8fc8ff);
+ root.traverse(m=>{if(!m.isMesh)return;m.material=Array.isArray(m.material)?m.material.map(x=>x.clone()):m.material.clone();
+  for(const mt of mats(m)){mt.transparent=true;if(m.userData.organ){mt.opacity=.95}else{mt.opacity=.14;mt.depthWrite=false;mt.blending=THREE.AdditiveBlending;mt.color&&mt.color.copy(ghost)}}});
+ const g=new THREE.SphereGeometry(.07,16,16);
+ for(const [id,o] of Object.entries(ORG))for(const n of o.dots){const nd=root.getObjectByName(n);if(!nd)continue;
+  const d=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:ST.GREEN,depthTest:false,transparent:true,opacity:.95}));
+  d.position.copy(new THREE.Box3().setFromObject(nd).getCenter(new THREE.Vector3()));d.renderOrder=10;d.userData={organ:id,dot:true};scene.add(d);dots.push(d)}
+ dash&&pollDash()}
+
+/* ---------- 3D picture of the chosen organ ---------- */
+let r2,run=false;
+function open3d(){const o=ORG[sel],h=$('#m3b');$('#m3t').textContent=o.n+' · 3D view';$('#m3').classList.add('on');h.innerHTML='';
+ const fb=m=>h.innerHTML=`<img src="${IM+o.img}" alt="${o.n}"><div style="position:absolute;bottom:14px;width:100%;text-align:center" class="m">${m}</div>`;
+ if(!o.glb)return fb('No 3D model was provided for this system - showing an illustration.');
+ r2=new THREE.WebGLRenderer({antialias:true,alpha:true});r2.setPixelRatio(Math.min(devicePixelRatio,2));r2.setSize(h.clientWidth,h.clientHeight);h.appendChild(r2.domElement);
+ const sc=new THREE.Scene(),cm=new THREE.PerspectiveCamera(40,h.clientWidth/h.clientHeight,.1,100);cm.position.set(0,0,5);
+ sc.add(new THREE.AmbientLight(0xffffff,1.3));const l=new THREE.DirectionalLight(0xffffff,2);l.position.set(3,4,5);sc.add(l);
+ const c=new OrbitControls(cm,r2.domElement);c.autoRotate=true;c.autoRotateSpeed=2;c.enableDamping=true;run=true;
+ new GLTFLoader().load(MP+o.glb,g=>{const m=g.scene;let b=new THREE.Box3().setFromObject(m);const s=b.getSize(new THREE.Vector3());m.scale.setScalar(3.2/Math.max(s.x,s.y,s.z));
+  b=new THREE.Box3().setFromObject(m);m.position.sub(b.getCenter(new THREE.Vector3()));sc.add(m)},undefined,()=>{run=false;fb('Could not load the 3D model - showing an illustration.')});
+ (function f(){if(!run)return;requestAnimationFrame(f);c.update();r2.render(sc,cm)})()}
+$('#m3x').onclick=()=>{run=false;$('#m3').classList.remove('on');r2&&(r2.dispose(),r2=null);$('#m3b').innerHTML=''};
+</script></body></html>

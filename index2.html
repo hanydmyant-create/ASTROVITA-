@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ASTROVITA</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;700&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css?v=4">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head><body>
+<video id="bgv" autoplay muted loop playsinline preload="auto" aria-hidden="true"><source src="public/assets/astrovita/bg.mp4" type="video/mp4"></video><div id="bgo" aria-hidden="true"></div>
+<header><div class="bar">
+<a class="brand" href="#home" aria-label="ASTROVITA home"><img src="public/assets/astrovita/branding/logo-wordmark.png" alt="ASTROVITA Space Medicine"></a>
+<nav id="nav" aria-label="Main"><a href="#home" data-r="home">Home</a><a href="#explorer" data-r="explorer">Space Health Explorer</a><a href="#mission" data-r="mission">Mission Health</a><a href="#research" data-r="research">Research &amp; Data</a><a href="#reports" data-r="reports">Health Report</a><a href="#idcard" data-r="idcard">Astronaut ID</a><a href="#about" data-r="about">About</a></nav>
+<div class="menu"><button id="mb" aria-expanded="false">Account</button><div class="drop" id="dd"></div></div>
+</div></header>
+<div id="site-intro" class="boot-screen on" aria-hidden="false">
+  <canvas id="starfield" aria-hidden="true"></canvas>
+  <div class="boot-logo-wrap"><img src="public/assets/astrovita/branding/logo-full.jpg" alt="ASTROVITA"></div>
+</div>
+<div id="site-launch" class="boot-screen" aria-hidden="true">
+  <div class="launch-label">LIFTOFF</div>
+  <div class="launch-rocket" aria-hidden="true">
+    <svg viewBox="0 0 80 180" width="110" height="180" role="img" aria-label="Rocket launch animation">
+      <path d="M40 0c11 18 18 38 18 62v44H22V62C22 38 29 18 40 0Z" fill="#e8eefc"/>
+      <circle cx="40" cy="52" r="9" fill="#38bdf8" stroke="#163865" stroke-width="3"/>
+      <path d="M22 86 6 124l18-8Z" fill="#ff5fa8"/>
+      <path d="M58 86 74 124l-18-8Z" fill="#ff5fa8"/>
+      <path class="flame" d="M32 96h16L40 156Z" fill="#ffb020"/>
+    </svg>
+  </div>
+</div>
+<main id="app"></main>
+<footer><div><span>ASTROVITA is educational and not a substitute for medical care. Accounts are a browser-only demo.</span></div></footer>
+<script src="js/data.js?v=4"></script><script src="js/store.js?v=4"></script><script src="js/app.js?v=4"></script><script src="js/extra.js?v=5"></script>
+</body></html>
